@@ -7,22 +7,23 @@ on:
 jobs:
   run:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
       - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
 
-      - name: Install system deps
-        run: sudo apt-get update && sudo apt-get install -y pandoc
+      - uses: r-lib/actions/setup-pandoc@v2
 
-      - name: Install renv
-        run: R -q -e 'install.packages("renv", repos="https://cloud.r-project.org")'
-
-      - name: Restore packages
-        run: R -q -e 'renv::restore(prompt=FALSE)'
+      # Restores renv.lock + caches packages automatically
+      - uses: r-lib/actions/setup-renv@v2
 
       - name: Run pipeline
+        shell: bash
         run: |
+          set -euxo pipefail
           make download
           make metadata
           make de
