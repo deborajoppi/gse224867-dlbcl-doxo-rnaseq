@@ -33,7 +33,7 @@ After `make all`, you get:
 
 ### Snapshot
 
-## Methods (high level)
+## Methods 
 
 Expression values are loaded from the GEO supplementary matrix (`norm_counts`). Differential expression is modeled with **limma** using the design `~ cell_line + treatment` (UT as reference). If values are integer-like, the pipeline can switch to **voom+limma**.
 
