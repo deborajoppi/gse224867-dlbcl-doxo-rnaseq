@@ -1,9 +1,12 @@
-cat > reports/report.Rmd <<'EOF'
 ---
-title: "GSE224867 — DLBCL response to doxorubicin (ADR) across cell lines"
+title: "GSE224867 — DLBCL response to doxorubicin (ADR)"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
-de <- read.csv("results/tables/DE_ADR_vs_UT.csv")
+knitr::opts_knit$set(root.dir = "..")  # so paths are from repo root
+de <- read.csv("results/tables/de_limma_results.csv")
+knitr::include_graphics("results/figures/pca.png")
+knitr::include_graphics("results/figures/volcano.png")
+head(de[order(de$adj.P.Val), c("gene_id","logFC","P.Value","adj.P.Val")], 20)
