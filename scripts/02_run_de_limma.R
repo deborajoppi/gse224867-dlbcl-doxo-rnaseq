@@ -72,21 +72,51 @@ plot(pca$x[,1], pca$x[,2], pch = 19, col = cols,
 legend("topright", legend = levels(meta$treatment), pch = 19, col = seq_along(levels(meta$treatment)))
 dev.off()
 
-# Volcano (color significant up/down)
+# Volcano (color + label top 5 up/down; Ensembl -> HUGO SYMBOL)
 logFC <- tt$logFC
 adjP  <- tt$adj.P.Val
+gene_ids <- tt$gene_id
 
 sig_cut <- 0.05
 lfc_cut <- 1
 
-is_sig <- !is.na(adjP) & (adjP < sig_cut)
-is_up  <- is_sig & !is.na(logFC) & (logFC >  lfc_cut)
-is_down<- is_sig & !is.na(logFC) & (logFC < -lfc_cut)
+is_sig  <- !is.na(adjP) & (adjP < sig_cut)
+is_up   <- is_sig & !is.na(logFC) & (logFC >  lfc_cut)
+is_down <- is_sig & !is.na(logFC) & (logFC < -lfc_cut)
 
-# default color for non-significant
+# colors
 pt_col <- rep("grey70", length(logFC))
 pt_col[is_up]   <- "red"
 pt_col[is_down] <- "blue"
+
+# ---- Ensembl -> HUGO symbols (robust to version suffix like ENSG... .12)
+sym <- gene_ids
+is_ens <- grepl("^ENSG", gene_ids)
+if (any(is_ens)) {
+  if (!requireNamespace("AnnotationDbi", quietly = TRUE) ||
+      !requireNamespace("org.Hs.eg.db", quietly = TRUE)) {
+    stop("Missing AnnotationDbi/org.Hs.eg.db. Install with: BiocManager::install(c('AnnotationDbi','org.Hs.eg.db'))")
+  }
+  ens_clean <- sub("\\..*$", "", gene_ids[is_ens])
+  mapped <- AnnotationDbi::mapIds(
+    org.Hs.eg.db::org.Hs.eg.db,
+    keys = ens_clean,
+    keytype = "ENSEMBL",
+    column = "SYMBOL",
+    multiVals = "first"
+  )
+  # keep Ensembl if no symbol found
+  sym[is_ens] <- ifelse(is.na(mapped) | mapped == "", gene_ids[is_ens], mapped)
+}
+
+# pick top 5 up + top 5 down among significant (by adj.P.Val)
+pick_top <- function(idx, n = 5) {
+  if (length(idx) == 0) return(integer(0))
+  idx[order(adjP[idx], decreasing = FALSE)][seq_len(min(n, length(idx)))]
+}
+lab_up   <- pick_top(which(is_up), 5)
+lab_down <- pick_top(which(is_down), 5)
+lab_idx  <- unique(c(lab_up, lab_down))
 
 png(out_volcano, width = 900, height = 700)
 plot(
@@ -99,6 +129,7 @@ plot(
 )
 abline(v = c(-lfc_cut, lfc_cut), lty = 2)
 abline(h = -log10(sig_cut), lty = 2)
+
 legend(
   "topright",
   legend = c("Up (sig)", "Down (sig)", "Not sig"),
@@ -106,5 +137,15 @@ legend(
   pch = 19,
   bty = "n"
 )
+
+# labels
+if (length(lab_idx) > 0) {
+  text(
+    x = logFC[lab_idx],
+    y = -log10(adjP[lab_idx]),
+    labels = sym[lab_idx],
+    pos = 3, cex = 0.7
+  )
+}
 dev.off()
 message("Saved: ", out_volcano)
