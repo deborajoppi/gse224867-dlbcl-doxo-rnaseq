@@ -1,10 +1,6 @@
+cat > scripts/03_make_report.R <<'EOF'
 #!/usr/bin/env Rscript
-
-if (!requireNamespace("rmarkdown", quietly = TRUE)) {
-  stop("Package 'rmarkdown' is required. Install it with install.packages('rmarkdown').")
-}
-
-dir.create("results", recursive = TRUE, showWarnings = FALSE)
+if (!requireNamespace("rmarkdown", quietly = TRUE)) stop("Missing package: rmarkdown")
 
 rmarkdown::render(
   input = "reports/report.Rmd",
@@ -12,5 +8,7 @@ rmarkdown::render(
   output_dir = "results",
   quiet = TRUE
 )
+message("Wrote: results/report.html")
+EOF
 
-message("Rendered results/report.html")
+chmod +x scripts/03_make_report.R
