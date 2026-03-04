@@ -12,7 +12,8 @@ jobs:
 
       - uses: r-lib/actions/setup-r@v2
         with:
-          # IMPORTANT: Bioconductor + renv is more reliable without forcing RSPM
+          # Match the Bioconductor version pinned in renv.lock (Bioc 3.20 -> R 4.4.x)
+          r-version: '4.4.1'
           use-public-rspm: false
 
       - uses: r-lib/actions/setup-pandoc@v2
@@ -21,14 +22,14 @@ jobs:
         run: |
           R -q -e 'install.packages(c("renv","BiocManager"), repos="https://cloud.r-project.org")'
 
-      - name: Restore renv (with Bioconductor repos)
+      - name: Restore renv (Bioconductor repos)
         run: |
-          R -q -e 'options(repos = BiocManager::repositories()); renv::restore(prompt=FALSE)'
+          R -q -e 'options(repos = BiocManager::repositories(version="3.20")); renv::restore(prompt=FALSE)'
 
-      - name: Install annotation packages (for Ensembl->HUGO)
+      - name: Install annotation packages (Ensembl->HUGO)
         run: |
-          R -q -e 'if(!requireNamespace("BiocManager", quietly=TRUE)) install.packages("BiocManager", repos="https://cloud.r-project.org"); BiocManager::install(c("AnnotationDbi","org.Hs.eg.db"), ask=FALSE, update=FALSE)'
-          
+          R -q -e 'options(repos = BiocManager::repositories(version="3.20")); BiocManager::install(c("AnnotationDbi","org.Hs.eg.db"), ask=FALSE, update=FALSE)'
+
       - name: Run pipeline
         shell: bash
         run: |
