@@ -1,6 +1,9 @@
 ---
 title: "GSE224867 — DLBCL response to doxorubicin (ADR)"
-output: html_document
+output:
+  html_document:
+    toc: true
+    toc_float: true
 ---
 
 ```{r setup, include=FALSE}
