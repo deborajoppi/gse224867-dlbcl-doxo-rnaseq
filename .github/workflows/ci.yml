@@ -25,6 +25,10 @@ jobs:
         run: |
           R -q -e 'options(repos = BiocManager::repositories()); renv::restore(prompt=FALSE)'
 
+      - name: Install annotation packages (for Ensembl->HUGO)
+        run: |
+          R -q -e 'if(!requireNamespace("BiocManager", quietly=TRUE)) install.packages("BiocManager", repos="https://cloud.r-project.org"); BiocManager::install(c("AnnotationDbi","org.Hs.eg.db"), ask=FALSE, update=FALSE)'
+          
       - name: Run pipeline
         shell: bash
         run: |
