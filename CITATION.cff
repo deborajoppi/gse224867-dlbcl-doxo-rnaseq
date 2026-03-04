@@ -1,0 +1,9 @@
+cff-version: 1.2.0
+title: "GSE224867 — DLBCL response to doxorubicin (ADR): reproducible DE workflow"
+message: "If you use this repository, please cite it."
+type: software
+authors:
+  - family-names: "Joppi"
+    given-names: "Débora"
+repository-code: "https://github.com/deborajoppi/gse224867-dlbcl-doxo-rnaseq"
+license: MIT
