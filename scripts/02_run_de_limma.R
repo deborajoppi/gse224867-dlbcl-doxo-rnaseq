@@ -72,10 +72,39 @@ plot(pca$x[,1], pca$x[,2], pch = 19, col = cols,
 legend("topright", legend = levels(meta$treatment), pch = 19, col = seq_along(levels(meta$treatment)))
 dev.off()
 
-# Volcano
+# Volcano (color significant up/down)
+logFC <- tt$logFC
+adjP  <- tt$adj.P.Val
+
+sig_cut <- 0.05
+lfc_cut <- 1
+
+is_sig <- !is.na(adjP) & (adjP < sig_cut)
+is_up  <- is_sig & !is.na(logFC) & (logFC >  lfc_cut)
+is_down<- is_sig & !is.na(logFC) & (logFC < -lfc_cut)
+
+# default color for non-significant
+pt_col <- rep("grey70", length(logFC))
+pt_col[is_up]   <- "red"
+pt_col[is_down] <- "blue"
+
 png(out_volcano, width = 900, height = 700)
-plot(tt$logFC, -log10(tt$adj.P.Val), pch = 19,
-     xlab = "log2FC (ADR vs UT)", ylab = "-log10(adj.P.Val)", main = "Volcano")
-abline(v = c(-1, 1), lty = 2)
-abline(h = -log10(0.05), lty = 2)
+plot(
+  logFC, -log10(adjP),
+  pch = 19,
+  col = pt_col,
+  xlab = "log2FC (ADR vs UT)",
+  ylab = "-log10(adj.P.Val)",
+  main = "Volcano"
+)
+abline(v = c(-lfc_cut, lfc_cut), lty = 2)
+abline(h = -log10(sig_cut), lty = 2)
+legend(
+  "topright",
+  legend = c("Up (sig)", "Down (sig)", "Not sig"),
+  col = c("red", "blue", "grey70"),
+  pch = 19,
+  bty = "n"
+)
 dev.off()
+message("Saved: ", out_volcano)
