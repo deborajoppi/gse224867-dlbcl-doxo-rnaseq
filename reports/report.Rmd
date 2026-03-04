@@ -1,0 +1,21 @@
+---
+title: "GSE224867 DLBCL Doxorubicin RNA-seq Report"
+output: html_document
+---
+
+## Overview
+
+This report summarizes the current analysis outputs.
+
+## Differential Expression Table
+
+```{r}
+de_file <- "results/tables/de_limma_results.csv"
+if (file.exists(de_file)) {
+  de <- read.csv(de_file)
+  print(utils::head(de, 10))
+  cat("Rows:", nrow(de), "\n")
+} else {
+  cat("No DE results found. Run `make de` first.\n")
+}
+```

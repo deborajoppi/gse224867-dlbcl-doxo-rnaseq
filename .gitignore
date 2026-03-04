@@ -1,0 +1,28 @@
+# R session/state
+.Rhistory
+.RData
+.Ruserdata
+
+# RStudio
+.Rproj.user/
+
+# renv cache/library artifacts (keep project scaffolding files)
+renv/library/
+renv/local/
+renv/staging/
+renv/python/
+
+# Raw downloaded data
+/data/raw/*
+!/data/raw/.gitkeep
+
+# Results: ignore heavy outputs, keep PNG/CSV and directory scaffolding
+/results/**
+!/results/
+!/results/**/
+!/results/**/*.png
+!/results/**/*.csv
+!/results/**/.gitkeep
+
+# Misc
+.DS_Store
