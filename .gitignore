@@ -30,3 +30,6 @@ renv/python/
 # keep rendered report HTML
 !results/report.html
 !results/**/*.html
+
+# generated helper tables
+results/tables/volcano_labels.csv
