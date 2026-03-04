@@ -106,14 +106,14 @@ if (any(grepl("^ENSG", clean))) {
   sym[is_ens] <- ifelse(is.na(mapped) | mapped == "", gene_ids[is_ens], mapped)
 }
 
-# choose labels = top 5 up + top 5 down by adj.P.Val (among is_up / is_down)
-pick_top <- function(idx, n=5) {
+# choose labels = top 10 up + top 10 down by adj.P.Val (among is_up / is_down)
+pick_top <- function(idx, n=10) {
   if (!length(idx)) return(integer(0))
   idx <- idx[order(adjP[idx], na.last = NA)]
   idx[seq_len(min(n, length(idx)))]
 }
-lab_up   <- pick_top(which(is_up), 5)
-lab_down <- pick_top(which(is_down), 5)
+lab_up   <- pick_top(which(is_up), 10)
+lab_down <- pick_top(which(is_down), 10)
 lab_idx  <- unique(c(lab_up, lab_down))
 
 # write out which genes are being labeled (debug + transparency)
