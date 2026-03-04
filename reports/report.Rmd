@@ -1,11 +1,29 @@
 ---
 title: "GSE224867 — DLBCL response to doxorubicin (ADR)"
-output: html_document
+output:
+  html_document:
+    self_contained: false
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
-de <- read.csv("results/tables/de_limma_results.csv")
-knitr::include_graphics("results/figures/pca.png")
-knitr::include_graphics("results/figures/volcano.png")
+de <- read.csv("tables/de_limma_results.csv")
+```
+
+## PCA
+```{r}
+knitr::include_graphics("figures/pca.png")
+```
+
+## Volcano
+```{r}
+knitr::include_graphics("figures/volcano.png")
+```
+
+## Top genes (by adj.P.Val)
+```{r}
 head(de[order(de$adj.P.Val), c("gene_id","logFC","P.Value","adj.P.Val")], 20)
+```
+
+## Notes / limitations
+This uses GEO `norm_counts`; DE is run with limma on log2(x+1) (or voom+limma if integer-like).
