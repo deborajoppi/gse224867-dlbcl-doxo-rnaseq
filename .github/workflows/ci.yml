@@ -1,0 +1,29 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+
+      - name: Install system deps
+        run: sudo apt-get update && sudo apt-get install -y pandoc
+
+      - name: Install renv
+        run: R -q -e 'install.packages("renv", repos="https://cloud.r-project.org")'
+
+      - name: Restore packages
+        run: R -q -e 'renv::restore(prompt=FALSE)'
+
+      - name: Run pipeline
+        run: |
+          make download
+          make metadata
+          make de
+          make report
