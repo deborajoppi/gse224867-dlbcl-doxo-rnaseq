@@ -6,7 +6,7 @@ rmarkdown::render(
   output_file = "report.html",
   output_dir = "results",
   knit_root_dir = normalizePath(".", winslash = "/", mustWork = TRUE),
-  quiet = TRUE
+  quiet = FALSE
 )
 
 message("Wrote results/report.html")
