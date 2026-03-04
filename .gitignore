@@ -26,3 +26,7 @@ renv/python/
 
 # Misc
 .DS_Store
+
+# keep rendered report HTML
+!results/report.html
+!results/**/*.html
