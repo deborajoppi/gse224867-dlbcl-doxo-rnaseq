@@ -39,6 +39,8 @@ kable(
   digits = 3,
   caption = "Top Hallmark pathways (sorted by adjusted p-value)."
 )
+knitr::include_graphics("results/figures/pathways_hallmark.png")
+```
 
 ## Notes / limitations
 This uses GEO `norm_counts`; DE is run with limma on log2(x+1) (or voom+limma if integer-like).
