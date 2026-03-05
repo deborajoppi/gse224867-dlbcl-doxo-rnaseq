@@ -25,5 +25,20 @@ knitr::include_graphics("figures/volcano.png")
 head(de[order(de$adj.P.Val), c("gene_id","logFC","P.Value","adj.P.Val")], 20)
 ```
 
+## Pathway enrichment (MSigDB Hallmark)
+
+```{r pathways-table, message=FALSE, warning=FALSE}
+library(readr)
+library(dplyr)
+library(knitr)
+
+pw <- read_csv("results/tables/pathways_hallmark.csv", show_col_types = FALSE)
+
+kable(
+  pw %>% select(pathway, NES, padj, size) %>% head(15),
+  digits = 3,
+  caption = "Top Hallmark pathways (sorted by adjusted p-value)."
+)
+
 ## Notes / limitations
 This uses GEO `norm_counts`; DE is run with limma on log2(x+1) (or voom+limma if integer-like).
