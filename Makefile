@@ -17,4 +17,9 @@ de:
 report:
 	Rscript scripts/03_make_report.R
 
-all: setup download metadata de report
+pathways: results/tables/pathways_hallmark.csv results/figures/pathways_hallmark.png
+
+results/tables/pathways_hallmark.csv results/figures/pathways_hallmark.png: scripts/04_pathways.R results/tables/de_limma_results.csv
+	Rscript scripts/04_pathways.R
+
+all: setup download metadata de pathways report
