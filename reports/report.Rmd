@@ -32,14 +32,14 @@ library(readr)
 library(dplyr)
 library(knitr)
 
-pw <- read_csv("results/tables/pathways_hallmark.csv", show_col_types = FALSE)
+pw <- readr::read_csv("tables/pathways_hallmark.csv", show_col_types = FALSE)
+knitr::include_graphics("figures/pathways_hallmark.png")
 
 kable(
   pw %>% select(pathway, NES, padj, size) %>% head(15),
   digits = 3,
   caption = "Top Hallmark pathways (sorted by adjusted p-value)."
 )
-knitr::include_graphics("results/figures/pathways_hallmark.png")
 ```
 
 ## Notes / limitations
