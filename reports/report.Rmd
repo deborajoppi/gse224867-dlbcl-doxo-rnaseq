@@ -15,6 +15,16 @@ de <- read.csv("tables/de_limma_results.csv")
 knitr::include_graphics("figures/pca.png")
 ```
 
+## Sample correlation heatmap
+```{r}
+knitr::include_graphics("figures/sample_correlation_heatmap.png")
+```
+
+## MA plot
+```{r}
+knitr::include_graphics("figures/ma.png")
+```
+
 ## Volcano
 ```{r}
 knitr::include_graphics("figures/volcano.png")

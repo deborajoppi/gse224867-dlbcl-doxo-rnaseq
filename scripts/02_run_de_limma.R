@@ -10,6 +10,8 @@ meta_file <- "data/metadata/samples.csv"
 out_table <- "results/tables/de_limma_results.csv"
 out_pca <- "results/figures/pca.png"
 out_volcano <- "results/figures/volcano.png"
+out_ma <- "results/figures/ma.png"
+out_corr <- "results/figures/sample_correlation_heatmap.png"
 
 stopifnot(file.exists(infile))
 stopifnot(file.exists(meta_file))
@@ -71,6 +73,60 @@ plot(pca$x[,1], pca$x[,2], pch = 19, col = cols,
      xlab = "PC1", ylab = "PC2", main = "PCA (top variable genes)")
 legend("topright", legend = levels(meta$treatment), pch = 19, col = seq_along(levels(meta$treatment)))
 dev.off()
+message("Saved: ", out_pca)
+
+# MA plot
+avg_expr <- if ("AveExpr" %in% names(tt)) tt$AveExpr else rowMeans(emat, na.rm = TRUE)
+sig_ma <- !is.na(tt$adj.P.Val) & tt$adj.P.Val < 0.05
+
+png(out_ma, width = 900, height = 700)
+plot(
+  avg_expr, tt$logFC,
+  pch = 16,
+  col = grDevices::rgb(0.6, 0.6, 0.6, 0.18),
+  cex = 0.6,
+  xlab = "Average expression",
+  ylab = "log2FC (ADR vs UT)",
+  main = "MA plot"
+)
+if (any(sig_ma)) {
+  points(
+    avg_expr[sig_ma], tt$logFC[sig_ma],
+    pch = 16,
+    col = grDevices::rgb(0.84, 0.15, 0.16, 0.7),
+    cex = 0.7
+  )
+}
+abline(h = 0, lty = 2)
+dev.off()
+message("Saved: ", out_ma)
+
+# Sample correlation heatmap
+sample_cor <- stats::cor(emat, use = "pairwise.complete.obs")
+ord <- order(meta$treatment, meta$cell_line)
+sample_cor <- sample_cor[ord, ord, drop = FALSE]
+sample_labels <- paste(meta$cell_line[ord], meta$treatment[ord], sep = "_")
+pal <- grDevices::colorRampPalette(c("#2166AC", "#F7F7F7", "#B2182B"))(100)
+
+png(out_corr, width = 1400, height = 1200)
+par(mar = c(14, 14, 4, 2))
+image(
+  x = seq_len(ncol(sample_cor)),
+  y = seq_len(nrow(sample_cor)),
+  z = t(sample_cor[nrow(sample_cor):1, , drop = FALSE]),
+  col = pal,
+  zlim = c(min(sample_cor, na.rm = TRUE), 1),
+  axes = FALSE,
+  xlab = "",
+  ylab = "",
+  main = "Sample-to-sample correlation"
+)
+axis(1, at = seq_along(sample_labels), labels = sample_labels, las = 2, cex.axis = 0.7)
+axis(2, at = seq_along(sample_labels), labels = rev(sample_labels), las = 2, cex.axis = 0.7)
+box()
+mtext("Samples ordered by treatment and cell line", side = 3, line = 0.5, cex = 0.9)
+dev.off()
+message("Saved: ", out_corr)
 
 # Volcano (layered plotting + labels + write label table)
 logFC <- tt$logFC
