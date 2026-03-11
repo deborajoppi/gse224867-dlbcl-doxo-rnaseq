@@ -12,6 +12,7 @@ out_pca <- "results/figures/pca.png"
 out_volcano <- "results/figures/volcano.png"
 out_ma <- "results/figures/ma.png"
 out_corr <- "results/figures/sample_correlation_heatmap.png"
+out_heatmap <- "results/figures/top_de_heatmap.png"
 
 stopifnot(file.exists(infile))
 stopifnot(file.exists(meta_file))
@@ -127,6 +128,57 @@ box()
 mtext("Samples ordered by treatment and cell line", side = 3, line = 0.5, cex = 0.9)
 dev.off()
 message("Saved: ", out_corr)
+
+# Top DE genes heatmap
+sig_idx <- which(!is.na(tt$adj.P.Val) & tt$adj.P.Val < 0.05)
+if (length(sig_idx) > 0) {
+  up_idx <- sig_idx[tt$logFC[sig_idx] > 0]
+  down_idx <- sig_idx[tt$logFC[sig_idx] < 0]
+
+  pick_idx <- function(idx, n = 20) {
+    if (!length(idx)) return(integer(0))
+    idx[order(tt$adj.P.Val[idx], -abs(tt$logFC[idx]), na.last = NA)][seq_len(min(n, length(idx)))]
+  }
+
+  heat_idx <- unique(c(pick_idx(up_idx, 20), pick_idx(down_idx, 20)))
+  heat_mat <- emat[tt$gene_id[heat_idx], ord, drop = FALSE]
+
+  row_center <- rowMeans(heat_mat, na.rm = TRUE)
+  row_sd <- apply(heat_mat, 1, stats::sd, na.rm = TRUE)
+  row_sd[row_sd == 0 | is.na(row_sd)] <- 1
+  heat_scaled <- sweep(sweep(heat_mat, 1, row_center, "-"), 1, row_sd, "/")
+  heat_scaled[heat_scaled > 2.5] <- 2.5
+  heat_scaled[heat_scaled < -2.5] <- -2.5
+
+  heat_labels <- tt$gene_id[heat_idx]
+  dup_labels <- duplicated(heat_labels) | duplicated(heat_labels, fromLast = TRUE) |
+    is.na(heat_labels) | heat_labels == ""
+  heat_labels[dup_labels] <- tt$gene_id[heat_idx][dup_labels]
+  rownames(heat_scaled) <- heat_labels
+  colnames(heat_scaled) <- sample_labels
+
+  heat_pal <- grDevices::colorRampPalette(c("#2166AC", "#F7F7F7", "#B2182B"))(120)
+
+  png(out_heatmap, width = 1500, height = 1200)
+  par(mar = c(14, 10, 4, 2))
+  image(
+    x = seq_len(ncol(heat_scaled)),
+    y = seq_len(nrow(heat_scaled)),
+    z = t(heat_scaled[nrow(heat_scaled):1, , drop = FALSE]),
+    col = heat_pal,
+    zlim = c(-2.5, 2.5),
+    axes = FALSE,
+    xlab = "",
+    ylab = "",
+    main = sprintf("Top DE genes heatmap (n=%d)", nrow(heat_scaled))
+  )
+  axis(1, at = seq_along(sample_labels), labels = sample_labels, las = 2, cex.axis = 0.7)
+  axis(2, at = seq_len(nrow(heat_scaled)), labels = rev(rownames(heat_scaled)), las = 2, cex.axis = 0.7)
+  box()
+  mtext("Samples ordered by treatment and cell line", side = 3, line = 0.5, cex = 0.9)
+  dev.off()
+  message("Saved: ", out_heatmap)
+}
 
 # Volcano (layered plotting + labels + write label table)
 logFC <- tt$logFC

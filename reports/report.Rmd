@@ -25,6 +25,11 @@ knitr::include_graphics("figures/sample_correlation_heatmap.png")
 knitr::include_graphics("figures/ma.png")
 ```
 
+## Top DE genes heatmap
+```{r}
+knitr::include_graphics("figures/top_de_heatmap.png")
+```
+
 ## Volcano
 ```{r}
 knitr::include_graphics("figures/volcano.png")
